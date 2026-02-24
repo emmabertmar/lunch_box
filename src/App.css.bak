@@ -68,18 +68,18 @@ body {
   gap: 0.75rem;
 }
 
-.btn-upload {
+/* .btn-upload {
   padding: 0.5rem 1.1rem;
-  background: color-mix(in srgb, var(--text) 50%, transparent);
-  color: var(--peach-light);
+  background: #FFAA6E;
+  color: var(--text);
   border-radius: 8px;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 600;
   transition: background 0.2s;
-}
+} */
 
-/* .btn-upload {
+.btn-upload {
   padding: 0.5rem 1.1rem;
   background: var(--text);
   color: var(--peach-light);
@@ -88,10 +88,10 @@ body {
   font-size: 0.9rem;
   font-weight: 600;
   transition: background 0.2s;
-} */
+}
 
 .btn-upload:hover {
-  background: var(--peach-dark);
+  background: #FF5900;
 }
 
 .btn-signout {
