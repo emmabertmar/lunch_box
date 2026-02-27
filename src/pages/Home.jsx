@@ -23,7 +23,8 @@ export default function Home() {
       .select(`
         *,
         profiles(username),
-        likes(id, user_id)
+        likes(id, user_id),
+        saves(id, user_id)
       `)
       .eq('week_number', week_number)
       .eq('year', year)
@@ -93,7 +94,7 @@ export default function Home() {
     fetchLastWinner()
   }
 
-  if (loading) return <div className="feed-message">Loading recipes...</div>
+  if (loading) return <div className="feed-message">Laddar recept...</div>
 
   return (
     <div className="feed-container">
@@ -101,13 +102,13 @@ export default function Home() {
       {lastWinner && <WinnerBanner winner={lastWinner} />}
 
       <div className="feed-header">
-        <h1>This week's recipes</h1>
-        <p>Week {getCurrentWeek().week_number} — vote for your favourite!</p>
+        <h1>Veckans recept</h1>
+        <p>Vecka {getCurrentWeek().week_number} — rösta på din favorit!</p>
       </div>
 
       {recipes.length === 0 ? (
         <div className="feed-message">
-          No recipes yet this week. Be the first to upload one!
+          Inga recept den här veckan ännu. Var först med att ladda upp ett!
         </div>
       ) : (
         <div className="recipe-grid">

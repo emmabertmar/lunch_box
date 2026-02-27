@@ -6,7 +6,7 @@ export default function WinnerBanner({ winner }) {
 
   return (
     <div className="winner-banner" onClick={() => navigate(`/recipe/${recipe.id}`)}>
-      <div className="winner-label">Week {winner.week_number} winner</div>
+      <div className="winner-label">Vinnare vecka {winner.week_number}</div>
 
       <div className="winner-content">
         {recipe.photo_url && (
@@ -18,7 +18,7 @@ export default function WinnerBanner({ winner }) {
           {recipe.description && (
             <p className="winner-description">{recipe.description}</p>
           )}
-          <span className="winner-likes">♥ {recipe.likes?.length ?? 0} likes</span>
+          <span className="winner-likes">♥ {recipe.likes?.length ?? 0} gillningar</span>
         </div>
       </div>
     </div>

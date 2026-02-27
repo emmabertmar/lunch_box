@@ -1,26 +1,52 @@
-import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import { getCurrentWeek } from '../utils/weekNumber'
 
-export default function UploadRecipe() {
+export default function EditRecipe() {
+  const { id } = useParams()
   const { user } = useAuth()
   const navigate = useNavigate()
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [ingredients, setIngredients] = useState([''])
-  const [instructions, setInstructions] = useState([''])
-  const [photo, setPhoto] = useState(null)
-  const [preview, setPreview] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
   const [focusIndex, setFocusIndex] = useState(null)
   const [focusInstructionIndex, setFocusInstructionIndex] = useState(null)
   const ingredientRefs = useRef([])
   const instructionRefs = useRef([])
   const fileInputRef = useRef(null)
+  const [instructions, setInstructions] = useState([''])
+  const [existingPhotoUrl, setExistingPhotoUrl] = useState(null)
+  const [photo, setPhoto] = useState(null)
+  const [preview, setPreview] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    fetchRecipe()
+  }, [id])
+
+  async function fetchRecipe() {
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error || !data) { navigate('/'); return }
+    if (data.user_id !== user.id) { navigate('/'); return }
+
+    setTitle(data.title)
+    setDescription(data.description || '')
+    const parsed = data.ingredients.split(/\n|,/).map(s => s.trim()).filter(Boolean)
+    setIngredients(parsed.length > 0 ? parsed : [''])
+    const parsedInstructions = data.instructions.split(/\n/).map(s => s.trim()).filter(Boolean)
+    setInstructions(parsedInstructions.length > 0 ? parsedInstructions : [''])
+    setExistingPhotoUrl(data.photo_url)
+    setLoading(false)
+  }
 
   useEffect(() => {
     if (focusIndex !== null && ingredientRefs.current[focusIndex]) {
@@ -28,6 +54,28 @@ export default function UploadRecipe() {
       setFocusIndex(null)
     }
   }, [focusIndex])
+
+  function handleIngredientChange(index, value) {
+    setIngredients(prev => prev.map((item, i) => i === index ? value : item))
+  }
+
+  function handleIngredientKeyDown(e, index) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      setIngredients(prev => [...prev.slice(0, index + 1), '', ...prev.slice(index + 1)])
+      setFocusIndex(index + 1)
+    }
+    if (e.key === 'Backspace' && ingredients[index] === '' && ingredients.length > 1) {
+      e.preventDefault()
+      setIngredients(prev => prev.filter((_, i) => i !== index))
+      setFocusIndex(index - 1)
+    }
+  }
+
+  function removeIngredient(index) {
+    if (ingredients.length === 1) { setIngredients(['']); return }
+    setIngredients(prev => prev.filter((_, i) => i !== index))
+  }
 
   useEffect(() => {
     if (focusInstructionIndex !== null && instructionRefs.current[focusInstructionIndex]) {
@@ -58,28 +106,6 @@ export default function UploadRecipe() {
     setInstructions(prev => prev.filter((_, i) => i !== index))
   }
 
-  function handleIngredientChange(index, value) {
-    setIngredients(prev => prev.map((item, i) => i === index ? value : item))
-  }
-
-  function handleIngredientKeyDown(e, index) {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      setIngredients(prev => [...prev.slice(0, index + 1), '', ...prev.slice(index + 1)])
-      setFocusIndex(index + 1)
-    }
-    if (e.key === 'Backspace' && ingredients[index] === '' && ingredients.length > 1) {
-      e.preventDefault()
-      setIngredients(prev => prev.filter((_, i) => i !== index))
-      setFocusIndex(index - 1)
-    }
-  }
-
-  function removeIngredient(index) {
-    if (ingredients.length === 1) { setIngredients(['']); return }
-    setIngredients(prev => prev.filter((_, i) => i !== index))
-  }
-
   function handlePhotoChange(e) {
     const file = e.target.files[0]
     if (!file) return
@@ -90,19 +116,9 @@ export default function UploadRecipe() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError(null)
+    setSaving(true)
 
-    if (!ingredients.some(s => s.trim())) {
-      setError('Lägg till minst en ingrediens.')
-      return
-    }
-    if (!instructions.some(s => s.trim())) {
-      setError('Lägg till minst ett steg.')
-      return
-    }
-
-    setLoading(true)
-
-    let photo_url = null
+    let photo_url = existingPhotoUrl
 
     if (photo) {
       const fileExt = photo.name.split('.').pop()
@@ -114,7 +130,7 @@ export default function UploadRecipe() {
 
       if (uploadError) {
         setError('Det gick inte att ladda upp bilden. Försök igen.')
-        setLoading(false)
+        setSaving(false)
         return
       }
 
@@ -125,34 +141,29 @@ export default function UploadRecipe() {
       photo_url = urlData.publicUrl
     }
 
-    const { week_number, year } = getCurrentWeek()
     const ingredientsString = ingredients.filter(s => s.trim()).join('\n')
     const instructionsString = instructions.filter(s => s.trim()).join('\n')
 
-    const { error: insertError } = await supabase.from('recipes').insert({
-      user_id: user.id,
-      title,
-      description,
-      ingredients: ingredientsString,
-      instructions: instructionsString,
-      photo_url,
-      week_number,
-      year
-    })
+    const { error: updateError } = await supabase
+      .from('recipes')
+      .update({ title, description, ingredients: ingredientsString, instructions: instructionsString, photo_url })
+      .eq('id', id)
 
-    if (insertError) {
-      setError('Det gick inte att spara receptet. Försök igen.')
-      setLoading(false)
+    if (updateError) {
+      setError('Det gick inte att spara ändringarna. Försök igen.')
+      setSaving(false)
       return
     }
 
-    navigate('/')
+    navigate(`/recipe/${id}`)
   }
+
+  if (loading) return <div className="feed-message">Laddar...</div>
 
   return (
     <div className="upload-container">
-      <h1>Ladda upp ett recept</h1>
-      <p className="upload-subtitle">Dela vad du lagar den här veckan</p>
+      <h1>Redigera recept</h1>
+      <p className="upload-subtitle">Uppdatera ditt recept</p>
 
       <form onSubmit={handleSubmit} className="upload-form">
 
@@ -162,7 +173,6 @@ export default function UploadRecipe() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="t.ex. Krämig pasta med spenat"
             required
           />
         </div>
@@ -173,7 +183,6 @@ export default function UploadRecipe() {
             type="text"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="t.ex. En snabb 20-minutersmåltid perfekt för studenter"
           />
         </div>
 
@@ -240,7 +249,10 @@ export default function UploadRecipe() {
         </div>
 
         <div className="form-group">
-          <label>Foto <span className="optional">(valfri)</span></label>
+          <label>Foto <span className="optional">(valfri — lämna tom för att behålla nuvarande)</span></label>
+          {existingPhotoUrl && !preview && (
+            <img src={existingPhotoUrl} alt="Current photo" className="photo-preview" />
+          )}
           <div className="file-picker">
             <button type="button" className="btn-file" onClick={() => fileInputRef.current.click()}>
               Välj fil
@@ -255,14 +267,14 @@ export default function UploadRecipe() {
             />
           </div>
           {preview && (
-            <img src={preview} alt="Preview" className="photo-preview" />
+            <img src={preview} alt="New photo preview" className="photo-preview" />
           )}
         </div>
 
         {error && <p className="auth-error">{error}</p>}
 
-        <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? 'Laddar upp...' : 'Publicera recept'}
+        <button type="submit" className="btn-primary" disabled={saving}>
+          {saving ? 'Sparar...' : 'Spara ändringar'}
         </button>
 
       </form>

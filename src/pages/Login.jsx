@@ -34,14 +34,14 @@ export default function Login() {
         {/* Left panel */}
         <div className="auth-panel">
           <img src="/logo.png" alt="LunchBox" className="auth-panel-logo" />
-          <h2>LunchBox</h2>
-          <p>Share your best student recipes and win the weekly competition.</p>
+          <h2>Matlåda</h2>
+          <p>Dela dina bästa recept med andra studenter och vinn veckans matlåda.</p>
         </div>
 
         {/* Right panel — form */}
         <div className="auth-box">
-          <h1>Welcome back</h1>
-          <p className="auth-subtitle">Log in to your account</p>
+          <h1>Välkommen tillbaka</h1>
+          <p className="auth-subtitle">Logga in</p>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -50,18 +50,18 @@ export default function Login() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@student.com"
+                placeholder="namn@exempel.se"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>Password</label>
+              <label>Lösenord</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Your password"
+                placeholder="ditt lösenord"
                 required
               />
             </div>
@@ -69,12 +69,12 @@ export default function Login() {
             {error && <p className="auth-error">{error}</p>}
 
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Logging in...' : 'Log in'}
+              {loading ? 'Loggar in...' : 'Logga in'}
             </button>
           </form>
 
           <p className="auth-switch">
-            No account yet? <Link to="/signup">Sign up</Link>
+            Inget konto ännu? <Link to="/signup">Registrera dig</Link>
           </p>
         </div>
 

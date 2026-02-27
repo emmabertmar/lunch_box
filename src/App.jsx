@@ -7,6 +7,10 @@ import SignUp from './pages/SignUp'
 import UploadRecipe from './pages/UploadRecipe'
 import Home from './pages/Home'
 import RecipeDetail from './pages/RecipeDetail'
+import EditRecipe from './pages/EditRecipe'
+import MyRecipes from './pages/MyRecipes'
+import RandomRecipe from './pages/RandomRecipe'
+import SavedRecipes from './pages/SavedRecipes'
 import './App.css'
 
 export default function App() {
@@ -18,11 +22,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
 
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          } />
+          <Route path="/" element={<Home />} />
 
           <Route path="/upload" element={
             <ProtectedRoute>
@@ -30,9 +30,25 @@ export default function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/recipe/:id" element={
+          <Route path="/recipe/:id" element={<RecipeDetail />} />
+
+          <Route path="/recipe/:id/edit" element={
             <ProtectedRoute>
-              <RecipeDetail />
+              <EditRecipe />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/random" element={<RandomRecipe />} />
+
+          <Route path="/my-recipes" element={
+            <ProtectedRoute>
+              <MyRecipes />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/saved" element={
+            <ProtectedRoute>
+              <SavedRecipes />
             </ProtectedRoute>
           } />
         </Routes>

@@ -34,14 +34,14 @@ export default function SignUp() {
         {/* Left panel */}
         <div className="auth-panel">
           <img src="/logo.png" alt="LunchBox" className="auth-panel-logo" />
-          <h2>LunchBox</h2>
-          <p>Share your best student recipes and win the weekly competition.</p>
+          <h2>Matlåda</h2>
+          <p>Dela dina bästa recept med andra studenter och vinn veckans matlåda.</p>
         </div>
 
         {/* Right panel — form */}
         <div className="auth-box">
-          <h1>Create account</h1>
-          <p className="auth-subtitle">Join LunchBox today</p>
+          <h1>Skapa konto</h1>
+          <p className="auth-subtitle">Gå med i Matlåda idag</p>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -50,18 +50,18 @@ export default function SignUp() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@student.com"
+                placeholder="namn@exempel.se"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label>Password</label>
+              <label>Lösenord</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="At least 6 characters"
+                placeholder="minst 6 tecken"
                 required
               />
             </div>
@@ -69,12 +69,12 @@ export default function SignUp() {
             {error && <p className="auth-error">{error}</p>}
 
             <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? 'Creating account...' : 'Sign up'}
+              {loading ? 'Skapar konto...' : 'Registrera dig'}
             </button>
           </form>
 
           <p className="auth-switch">
-            Already have an account? <Link to="/login">Log in</Link>
+            Har du redan ett konto? <Link to="/login">Logga in</Link>
           </p>
         </div>
 
