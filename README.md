@@ -1,10 +1,8 @@
 # LunchBox
 
-A small web app where users post their lunch recipes and compete week by week.
+A web app where users post their lunch recipes and compete week by week.
 Every recipe is tagged with an ISO week number, and the one with the most likes
 that week is shown as the winner.
-
-Built as a school project to practice React together with a real backend.
 
 ## Features
 
