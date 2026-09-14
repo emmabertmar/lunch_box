@@ -5,3 +5,10 @@ dist-ssr
 .env
 .env.local
 .DS_Store
+
+# Adobe Illustrator / design source files
+*.ai
+
+# editor + OS cruft
+**/.DS_Store
+*.bak
